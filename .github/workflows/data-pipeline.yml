@@ -18,6 +18,12 @@ permissions:
 jobs:
   collect:
     runs-on: ubuntu-latest
+    # afsa.gov.au's WAF tarpits datacenter IPs, so this job can fail with
+    # ETIMEDOUT even though the same script succeeds from a normal connection.
+    # That is survivable: the site serves only the committed files in
+    # public/data/, so a failed refresh leaves the data one quarter stale rather
+    # than breaking production. If it fails, run the pipeline locally and commit.
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4

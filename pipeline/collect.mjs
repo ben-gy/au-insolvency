@@ -31,18 +31,47 @@ const ABS_SA3 =
 const UA =
   'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0 Safari/537.36';
 
+// afsa.gov.au sits behind a WAF that tarpits requests which do not look like a
+// browser — it completes the TLS handshake and then simply never responds, so
+// the failure mode is `read ETIMEDOUT` rather than a 403. Sending a full set of
+// browser headers is what gets through; a bare user-agent is not enough.
+//
+// KNOWN LIMITATION: the WAF also appears to rate-limit or block datacenter IP
+// ranges, so this can still time out from a GitHub Actions runner even though it
+// succeeds from a normal connection. If the quarterly workflow fails with
+// ETIMEDOUT, run the pipeline locally and commit `public/data/` — the site reads
+// only those committed files, so a failed refresh never breaks production, it
+// just leaves the data one quarter stale.
+const BROWSER_HEADERS = {
+  'user-agent': UA,
+  accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+  'accept-language': 'en-AU,en;q=0.9',
+  'accept-encoding': 'gzip, deflate, br',
+  'cache-control': 'no-cache',
+  pragma: 'no-cache',
+  'sec-fetch-dest': 'document',
+  'sec-fetch-mode': 'navigate',
+  'sec-fetch-site': 'none',
+  'upgrade-insecure-requests': '1',
+};
+
+const ATTEMPT_TIMEOUT_MS = 90_000;
+
 async function fetchWithRetry(url, { accept, tries = 4 } = {}) {
   let lastErr;
   for (let i = 0; i < tries; i++) {
     try {
       const res = await fetch(url, {
-        headers: { 'user-agent': UA, ...(accept ? { accept } : {}) },
+        headers: { ...BROWSER_HEADERS, ...(accept ? { accept } : {}) },
+        // Without an explicit signal a tarpitted socket hangs for the platform
+        // default, burning most of the job's wall clock before the first retry.
+        signal: AbortSignal.timeout(ATTEMPT_TIMEOUT_MS),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status} for ${url}`);
       return await res.text();
     } catch (err) {
       lastErr = err;
-      const wait = 1500 * 2 ** i;
+      const wait = 4000 * 2 ** i;
       console.log(`  retry ${i + 1}/${tries} in ${wait}ms — ${err.message}`);
       await new Promise((r) => setTimeout(r, wait));
     }
