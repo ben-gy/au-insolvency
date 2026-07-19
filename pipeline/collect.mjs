@@ -33,15 +33,13 @@ const UA =
 
 // afsa.gov.au sits behind a WAF that tarpits requests which do not look like a
 // browser — it completes the TLS handshake and then simply never responds, so
-// the failure mode is `read ETIMEDOUT` rather than a 403. Sending a full set of
-// browser headers is what gets through; a bare user-agent is not enough.
+// the failure mode is `read ETIMEDOUT` rather than a 403.
 //
-// KNOWN LIMITATION: the WAF also appears to rate-limit or block datacenter IP
-// ranges, so this can still time out from a GitHub Actions runner even though it
-// succeeds from a normal connection. If the quarterly workflow fails with
-// ETIMEDOUT, run the pipeline locally and commit `public/data/` — the site reads
-// only those committed files, so a failed refresh never breaks production, it
-// just leaves the data one quarter stale.
+// A bare user-agent is NOT enough: the first CI run sent only `user-agent` and
+// timed out on all four attempts, while the identical request succeeded from a
+// desktop. Sending the full browser header set below fixed it on the runner, so
+// the discriminator is the headers, not the IP range. Do not trim this list back
+// to a lone user-agent — that is the exact configuration that fails.
 const BROWSER_HEADERS = {
   'user-agent': UA,
   accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
