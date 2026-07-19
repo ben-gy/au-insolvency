@@ -1,0 +1,346 @@
+/* Personal Insolvency — civic light theme.
+   Serious subject: red is reserved for genuine above-median distress and is
+   never used as decoration. */
+
+:root {
+  --bg-base: #faf9f7;
+  --bg-surface: #f3f1ee;
+  --bg-elevated: #eeebe6;
+  --bg-panel: #ffffff;
+  --bg-hover: #f4f2ef;
+  --bg-active: #e8e4de;
+
+  --border-subtle: #e5e1db;
+  --border-default: #d2ccc3;
+  --border-strong: #a9a196;
+
+  --text-primary: #1d1b18;
+  --text-secondary: #55504a;
+  --text-tertiary: #8a837a;
+  --text-muted: #b3aca2;
+
+  --accent-primary: #3f4b8f;
+  --accent-primary-hover: #333e7a;
+  --accent-soft: #eceef8;
+
+  /* The two faces of insolvency — same colours everywhere they appear. */
+  --business: #b06432;
+  --business-soft: #f6ece3;
+  --consumer: #2b7a72;
+  --consumer-soft: #e6f2f0;
+
+  --status-good: #2f7d4f;
+  --status-warn: #b57611;
+  --status-bad: #a8352b;
+  --status-info: #3f4b8f;
+
+  /* Sequential ramp for rates. Warm, ordered, colour-blind safe enough at 5 steps. */
+  --sev-1: #dfe7f1;
+  --sev-2: #f3e2c8;
+  --sev-3: #e8b98b;
+  --sev-4: #d47f52;
+  --sev-5: #a8352b;
+
+  --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', Helvetica, Arial, sans-serif;
+  --font-mono: 'SF Mono', 'Fira Code', 'Cascadia Code', 'Consolas', monospace;
+  --font-size-xs: 0.6875rem;
+  --font-size-sm: 0.75rem;
+  --font-size-base: 0.875rem;
+  --font-size-lg: 1rem;
+  --font-size-xl: 1.125rem;
+  --font-size-2xl: 1.5rem;
+
+  --space-xs: 0.25rem;
+  --space-sm: 0.5rem;
+  --space-md: 0.75rem;
+  --space-lg: 1rem;
+  --space-xl: 1.5rem;
+  --space-2xl: 2rem;
+
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+
+  --transition-fast: 150ms ease;
+  --transition-normal: 250ms ease;
+
+  /* Title-bar min-height. Fixed — do not write measurements back into this,
+     it feeds .header-inner's own height. */
+  --header-h: 54px;
+  /* Offset for sticky table headers: the full header including the nav tabs.
+     Measured at runtime in main.ts; this is the pre-hydration fallback. */
+  --sticky-top: 97px;
+
+  /* Leaflet gives its own panes/controls z-index up to 1000. Everything that
+     must float above the map lives above that, and the map container makes its
+     own stacking context so those panes cannot escape to the page root. */
+  --z-header: 900;
+  --z-overlay: 2000;
+  --z-modal: 2100;
+  --z-tooltip: 2300;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+html, body { height: 100%; }
+
+/* `clip`, never `hidden`: overflow-x:hidden silently kills position:sticky on
+   descendants, which takes the table headers and the site header with it. */
+html { overflow-x: clip; }
+
+body {
+  font-family: var(--font-sans);
+  font-size: var(--font-size-base);
+  color: var(--text-primary);
+  background: var(--bg-base);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: clip;
+}
+
+#app { min-height: 100vh; display: flex; flex-direction: column; }
+.main-content { flex: 1 0 auto; width: 100%; max-width: 1600px; margin: 0 auto; padding: var(--space-xl) var(--space-lg) var(--space-2xl); }
+.site-footer { flex-shrink: 0; }
+
+/* ── header ─────────────────────────────────────────────────── */
+.site-header {
+  position: sticky; top: 0; z-index: var(--z-header);
+  background: var(--bg-panel);
+  border-bottom: 1px solid var(--border-subtle);
+}
+.header-inner {
+  max-width: 1600px; margin: 0 auto;
+  display: flex; align-items: center; gap: var(--space-lg);
+  padding: 0 var(--space-lg); min-height: var(--header-h);
+}
+.brand { display: flex; align-items: baseline; gap: var(--space-sm); min-width: 0; }
+.brand h1 { font-size: var(--font-size-lg); font-weight: 650; letter-spacing: -0.015em; white-space: nowrap; }
+.brand .brand-sub { font-size: var(--font-size-sm); color: var(--text-tertiary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; }
+.header-spacer { flex: 1 1 auto; }
+.icon-btn {
+  flex: 0 0 auto; width: 32px; height: 32px; border-radius: 50%;
+  border: 1px solid var(--border-default); background: var(--bg-panel);
+  color: var(--text-secondary); font-size: var(--font-size-base); font-weight: 600;
+  cursor: pointer; transition: background var(--transition-fast), color var(--transition-fast);
+}
+.icon-btn:hover { background: var(--accent-soft); color: var(--accent-primary); border-color: var(--accent-primary); }
+
+.nav-tabs {
+  display: flex; gap: 2px; overflow-x: auto; scrollbar-width: none;
+  max-width: 1600px; margin: 0 auto; padding: 0 var(--space-lg);
+}
+.nav-tabs::-webkit-scrollbar { display: none; }
+.nav-wrap { background: var(--bg-panel); border-bottom: 1px solid var(--border-subtle); }
+.nav-tab {
+  flex: 0 0 auto; padding: var(--space-sm) var(--space-md) var(--space-md);
+  background: none; border: 0; border-bottom: 2px solid transparent;
+  color: var(--text-secondary); font: inherit; font-size: var(--font-size-base);
+  cursor: pointer; white-space: nowrap; transition: color var(--transition-fast), border-color var(--transition-fast);
+}
+.nav-tab:hover { color: var(--text-primary); }
+.nav-tab[aria-selected='true'] { color: var(--accent-primary); border-bottom-color: var(--accent-primary); font-weight: 600; }
+
+/* ── generic blocks ─────────────────────────────────────────── */
+.view-head { margin-bottom: var(--space-lg); }
+.view-head h2 { font-size: var(--font-size-xl); font-weight: 650; letter-spacing: -0.01em; }
+.view-head p { color: var(--text-secondary); max-width: 78ch; margin-top: var(--space-xs); }
+
+.panel { background: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: var(--space-lg); }
+
+/* Wide-by-nature content (charts) scrolls locally so it never widens the page. */
+.scroll-x { overflow-x: auto; }
+
+/* Tables are deliberately NOT scroll containers on desktop.
+   `overflow-x: auto` also makes an element the scrollport for any
+   `position: sticky` descendant, so a sticky <thead> would offset itself
+   `--sticky-top` pixels down *inside the panel* — landing in the middle of the
+   rows — instead of pinning below the site header. Below the breakpoint the
+   table does need to scroll sideways, so there we give up the sticky header
+   rather than have it float mid-table. */
+.table-scroll { overflow-x: visible; }
+@media (max-width: 900px) {
+  .table-scroll { overflow-x: auto; }
+  .table-scroll thead th { top: 0; }
+}
+
+.controls { display: flex; flex-wrap: wrap; gap: var(--space-sm); align-items: center; margin-bottom: var(--space-lg); }
+.seg { display: inline-flex; background: var(--bg-surface); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 2px; gap: 2px; }
+.seg button {
+  padding: 5px 11px; border: 0; border-radius: calc(var(--radius-md) - 3px);
+  background: none; color: var(--text-secondary); font: inherit; font-size: var(--font-size-sm);
+  cursor: pointer; white-space: nowrap; transition: background var(--transition-fast), color var(--transition-fast);
+}
+.seg button:hover { color: var(--text-primary); }
+.seg button[aria-pressed='true'] { background: var(--bg-panel); color: var(--accent-primary); font-weight: 600; box-shadow: 0 1px 2px rgba(0,0,0,.06); }
+
+input[type='search'], select {
+  padding: 7px 11px; border: 1px solid var(--border-default); border-radius: var(--radius-md);
+  background: var(--bg-panel); color: var(--text-primary); font: inherit; font-size: var(--font-size-base);
+  min-width: 0;
+}
+input[type='search'] { flex: 1 1 220px; max-width: 340px; }
+input:focus-visible, select:focus-visible, button:focus-visible, .glossary-link:focus-visible, a:focus-visible {
+  outline: 2px solid var(--accent-primary); outline-offset: 2px;
+}
+
+.stat-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(170px, 100%), 1fr)); gap: var(--space-md); margin-bottom: var(--space-lg); }
+.stat { background: var(--bg-panel); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: var(--space-md); min-width: 0; }
+.stat .stat-label { font-size: var(--font-size-xs); text-transform: uppercase; letter-spacing: .05em; color: var(--text-tertiary); }
+.stat .stat-value { font-family: var(--font-mono); font-size: var(--font-size-xl); font-weight: 600; margin-top: 2px; }
+.stat .stat-note { font-size: var(--font-size-xs); color: var(--text-tertiary); }
+
+.num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.pos { color: var(--status-bad); }
+.neg { color: var(--status-good); }
+
+/* ── tables ─────────────────────────────────────────────────── */
+table { border-collapse: collapse; width: 100%; font-size: var(--font-size-base); }
+thead th {
+  position: sticky; top: var(--sticky-top); z-index: 2;
+  background: var(--bg-surface); text-align: left; font-weight: 600; font-size: var(--font-size-sm);
+  color: var(--text-secondary); padding: var(--space-sm) var(--space-md);
+  border-bottom: 1px solid var(--border-default); white-space: nowrap;
+}
+thead th.sortable { cursor: pointer; user-select: none; }
+thead th.sortable:hover { color: var(--accent-primary); }
+tbody td { padding: 6px var(--space-md); border-bottom: 1px solid var(--border-subtle); }
+tbody tr:nth-child(even) { background: var(--bg-base); }
+tbody tr.clickable { cursor: pointer; }
+tbody tr.clickable:hover { background: var(--accent-soft); }
+td.right, th.right { text-align: right; }
+.rank { color: var(--text-tertiary); font-family: var(--font-mono); }
+.region-name { font-weight: 550; }
+.state-pill { display: inline-block; padding: 1px 6px; border-radius: 999px; background: var(--bg-elevated); color: var(--text-secondary); font-size: var(--font-size-xs); }
+
+/* ── charts ─────────────────────────────────────────────────── */
+.chart-wrap { position: relative; }
+svg.chart { display: block; width: 100%; height: auto; overflow: visible; }
+.axis-line { stroke: var(--border-default); stroke-width: 1; }
+.grid-line { stroke: var(--border-subtle); stroke-width: 1; }
+.axis-text { fill: var(--text-tertiary); font-size: 10px; font-family: var(--font-sans); }
+.axis-title { fill: var(--text-secondary); font-size: 11px; font-weight: 600; }
+.bar { transition: opacity var(--transition-fast); }
+.bar:hover { opacity: .78; }
+.dot { cursor: pointer; transition: stroke-width var(--transition-fast); }
+.dot:hover { stroke-width: 2.5; }
+.spark { display: block; }
+
+.legend { display: flex; flex-wrap: wrap; gap: var(--space-md); margin-top: var(--space-md); font-size: var(--font-size-sm); color: var(--text-secondary); }
+.legend-item { display: inline-flex; align-items: center; gap: 6px; }
+.legend-swatch { width: 12px; height: 12px; border-radius: 3px; flex: 0 0 auto; }
+.legend button.legend-item { background: none; border: 0; font: inherit; color: inherit; cursor: pointer; padding: 2px 4px; border-radius: var(--radius-sm); }
+.legend button.legend-item:hover { background: var(--bg-hover); }
+.legend button.legend-item[aria-pressed='false'] { opacity: .42; }
+
+.svg-zoom-controls { position: absolute; top: 8px; right: 8px; display: flex; flex-direction: column; gap: 4px; z-index: 3; }
+.svg-zoom-controls button {
+  width: 28px; height: 28px; border: 1px solid var(--border-default); border-radius: var(--radius-sm);
+  background: var(--bg-panel); color: var(--text-secondary); font: inherit; cursor: pointer;
+}
+.svg-zoom-controls button:hover { background: var(--accent-soft); color: var(--accent-primary); }
+
+/* ── map ────────────────────────────────────────────────────── */
+/* isolation + z-index:0 contains Leaflet's panes so they cannot paint over
+   modals and drawers. This shipped broken once elsewhere; do not remove. */
+.map-shell { isolation: isolate; position: relative; z-index: 0; }
+.map-canvas { height: 640px; border-radius: var(--radius-lg); overflow: hidden; border: 1px solid var(--border-subtle); background: var(--bg-surface); }
+.leaflet-container { font: inherit; background: var(--bg-surface); }
+.map-tip { font-size: var(--font-size-sm); }
+.map-legend { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-sm); margin-top: var(--space-md); font-size: var(--font-size-sm); color: var(--text-secondary); }
+.map-legend .ramp { display: flex; }
+.map-legend .ramp span { width: 34px; height: 12px; }
+
+/* ── tooltip + glossary ─────────────────────────────────────── */
+.hover-tip {
+  position: fixed; z-index: var(--z-tooltip); pointer-events: none;
+  max-width: 300px; padding: 7px 10px; border-radius: var(--radius-md);
+  background: #24211d; color: #f7f5f2; font-size: var(--font-size-sm); line-height: 1.45;
+  box-shadow: 0 6px 20px rgba(0,0,0,.22); opacity: 0; transition: opacity var(--transition-fast);
+  white-space: pre-line;
+}
+.hover-tip.visible { opacity: 1; }
+
+.glossary-link { border-bottom: 1px dotted var(--accent-primary); cursor: help; color: inherit; }
+.gloss-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 13px; height: 13px; margin-left: 3px; border-radius: 50%;
+  background: var(--accent-primary); color: #fff; font-size: 9px; font-style: italic;
+  font-weight: 700; vertical-align: super; line-height: 1;
+}
+.glossary-popover {
+  position: fixed; z-index: var(--z-tooltip); width: min(340px, calc(100vw - 24px));
+  padding: var(--space-md); border-radius: var(--radius-md);
+  background: var(--bg-panel); border: 1px solid var(--border-default);
+  box-shadow: 0 12px 32px rgba(0,0,0,.16); display: none;
+}
+.glossary-popover.visible { display: block; }
+.glossary-popover h4 { font-size: var(--font-size-base); margin-bottom: var(--space-xs); }
+.glossary-popover p { font-size: var(--font-size-sm); color: var(--text-secondary); }
+
+/* ── overlay: about modal + drill-down drawer ───────────────── */
+.overlay {
+  position: fixed; inset: 0; z-index: var(--z-overlay);
+  background: rgba(29,27,24,.42); opacity: 0; pointer-events: none;
+  transition: opacity var(--transition-normal);
+}
+.overlay.open { opacity: 1; pointer-events: auto; }
+
+.modal {
+  position: fixed; z-index: var(--z-modal); top: 50%; left: 50%;
+  transform: translate(-50%, -48%); width: min(680px, calc(100vw - 32px));
+  max-height: min(80vh, 760px); overflow-y: auto;
+  background: var(--bg-panel); border-radius: var(--radius-lg); padding: var(--space-xl);
+  box-shadow: 0 24px 60px rgba(0,0,0,.28);
+  opacity: 0; pointer-events: none; transition: opacity var(--transition-normal), transform var(--transition-normal);
+}
+.modal.open { opacity: 1; pointer-events: auto; transform: translate(-50%, -50%); }
+.modal h2 { font-size: var(--font-size-xl); margin-bottom: var(--space-md); }
+.modal h3 { font-size: var(--font-size-base); margin: var(--space-lg) 0 var(--space-xs); }
+.modal p, .modal li { color: var(--text-secondary); margin-bottom: var(--space-sm); }
+.modal ul { padding-left: var(--space-lg); }
+.modal-close { position: absolute; top: var(--space-md); right: var(--space-md); }
+
+.drawer {
+  position: fixed; z-index: var(--z-modal); top: 0; right: 0; height: 100%;
+  width: min(560px, 100vw); background: var(--bg-panel);
+  border-left: 1px solid var(--border-subtle); box-shadow: -12px 0 40px rgba(0,0,0,.16);
+  transform: translateX(100%); transition: transform var(--transition-normal);
+  overflow-y: auto; padding: var(--space-xl);
+}
+.drawer.open { transform: translateX(0); }
+.drawer h2 { font-size: var(--font-size-xl); padding-right: 40px; }
+.drawer .sub { color: var(--text-secondary); margin-bottom: var(--space-lg); }
+.drawer-close { position: absolute; top: var(--space-md); right: var(--space-md); }
+.kv { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 4px var(--space-md); margin-bottom: var(--space-lg); }
+.kv dt { color: var(--text-secondary); font-size: var(--font-size-sm); min-width: 0; }
+.kv dd { font-family: var(--font-mono); font-size: var(--font-size-sm); text-align: right; }
+
+/* ── insights ───────────────────────────────────────────────── */
+.insight-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(340px, 100%), 1fr)); gap: var(--space-md); }
+.insight { background: var(--bg-panel); border: 1px solid var(--border-subtle); border-left: 3px solid var(--status-info); border-radius: var(--radius-md); padding: var(--space-lg); min-width: 0; }
+.insight.alert { border-left-color: var(--status-bad); }
+.insight.warn { border-left-color: var(--status-warn); }
+.insight h3 { font-size: var(--font-size-base); margin-bottom: var(--space-xs); }
+.insight p { color: var(--text-secondary); font-size: var(--font-size-sm); }
+.insight button { margin-top: var(--space-sm); background: none; border: 0; padding: 0; color: var(--accent-primary); font: inherit; font-size: var(--font-size-sm); cursor: pointer; text-decoration: underline; }
+
+/* ── states ─────────────────────────────────────────────────── */
+.loading, .error-state, .empty-state { padding: var(--space-2xl); text-align: center; color: var(--text-secondary); }
+.error-state { color: var(--status-bad); }
+.skeleton { height: 320px; border-radius: var(--radius-lg); background: linear-gradient(90deg, var(--bg-surface) 25%, var(--bg-elevated) 50%, var(--bg-surface) 75%); background-size: 200% 100%; animation: shimmer 1.4s infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+
+/* ── footer ─────────────────────────────────────────────────── */
+.site-footer { border-top: 1px solid var(--border-subtle); background: var(--bg-panel); margin-top: var(--space-2xl); }
+.footer-inner { max-width: 1600px; margin: 0 auto; padding: var(--space-lg); font-size: var(--font-size-sm); color: var(--text-tertiary); }
+.footer-inner a { color: var(--accent-primary); }
+.footer-inner p + p { margin-top: var(--space-xs); }
+
+/* ── responsive ─────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .main-content { padding: var(--space-lg) var(--space-md) var(--space-2xl); }
+  .brand .brand-sub { display: none; }
+  thead th { top: var(--sticky-top); }
+  .map-canvas { height: 460px; }
+  .drawer { width: 100vw; padding: var(--space-lg); }
+  .modal { padding: var(--space-lg); }
+}

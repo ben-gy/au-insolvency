@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <rect width="32" height="32" rx="7" fill="#3f4b8f"/>
+  <!-- a declining series: the shape of the data -->
+  <path d="M5 9 L11 15 L16 12 L21 20 L27 24" fill="none" stroke="#faf9f7" stroke-width="2.4"
+        stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="27" cy="24" r="2.6" fill="#b06432"/>
+</svg>

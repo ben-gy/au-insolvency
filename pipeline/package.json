@@ -1,0 +1,9 @@
+{
+  "name": "au-insolvency-pipeline",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "mapshaper": "^0.6.102"
+  }
+}
