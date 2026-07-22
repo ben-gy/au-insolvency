@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2026 Ben Richardson — https://benrichardson.dev
+// Additional terms under AGPL-3.0 section 7(b) apply; see ADDITIONAL-TERMS.md.
 // Hand-rolled SVG chart primitives. No chart library — these are simple enough
 // that a dependency would cost more than it saves, and every mark needs a
 // [data-tip] hover anyway.
