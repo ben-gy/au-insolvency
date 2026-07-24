@@ -4,7 +4,6 @@
 import './styles.css';
 import { initTooltip } from './components/tooltip';
 import { initGlossary, gloss, hideGlossary } from './glossary';
-import { mountFeedback } from './feedback';
 import { esc } from './format';
 import type { Dataset } from './types';
 import { renderDrawer } from './drilldown';
@@ -232,7 +231,6 @@ async function boot(): Promise<void> {
   shell();
   initTooltip();
   initGlossary();
-  mountFeedback();
   window.addEventListener('hashchange', render);
 
   try {
